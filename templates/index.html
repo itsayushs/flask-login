@@ -1,17 +1,9 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <title>Document</title>
-</head>
-<body>
+{% extends "header.html" %}
+{% block body %}
   <h4>Login Here!</h4>
-  <form action="" method="post">
-    <input type="text" placeholder = "Username" name="username" value="{{request.form.username}}">
-    <input type="password" placeholder = "Password" name="password" value="{{request.form.password}}">
-		<input type="submit" value="Login">
+  <form action="" class="form-inline" method="post">
+    <input type="text" class="form-control" placeholder="Username" name="username" value="{{request.form.username}}">
+    <input type="password" class="form-control" placeholder = "Password" name="password" value="{{request.form.password}}">
+		<input class="btn btn-default" type="submit" value="Login">
   </form>
-</body>
-</html>
+{% endblock %}
