@@ -41,4 +41,4 @@ def query(uname):
     if response['Count']==0:
         return True #    no such user exist
     else:
-        return False
+        return False#   user exist

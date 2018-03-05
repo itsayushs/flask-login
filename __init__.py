@@ -8,21 +8,29 @@ from dynamo import getpass, setdets, query
 from flask import Flask, render_template, flash, request, url_for, redirect, session
 from wtforms import Form, BooleanField, TextField, PasswordField, validators
 from passlib.hash import sha256_crypt
+from functools import wraps
 
 app=Flask(__name__)
+app.secret_key = 'A0Zr98j/3yX R~XHH!jmN]LWX/,?RT'
 @app.route('/',methods=['GET','POST'])
 def home():
     if request.method == "POST":		
         attempted_username = request.form['username']
-        attempted_password = request.form['password']
-        user="ayush"
-        if attempted_username == "admin" and attempted_password == "password":
-            return render_template("welcome.html", uname = user)				
+        if query(attempted_username) == False:
+            k=getpass(attempted_username)
+            if sha256_crypt.verify(request.form['password'],k):
+               session['logged_in'] = True
+               session['username'] = request.form['username']
+               flash("You are now logged in")
+               return render_template("welcome.html", uname = attempted_username)
+            else:
+                flash("Invalid credentials, try again.")
+                return render_template("index.html")
         else:
-            return render_template("logout.html")
+            flash('No such user detected please signup!')
+            return redirect(url_for('register_page'))
     else:
         return render_template("index.html")
-
 #createing the form in flask
 class RegistrationForm(Form):
     username = TextField('Username', [validators.Length(min=4, max=20)])
@@ -35,7 +43,6 @@ class RegistrationForm(Form):
     
 @app.route('/register/', methods=["GET","POST"])
 def register_page():
-        app.secret_key = 'A0Zr98j/3yX R~XHH!jmN]LWX/,?RT'
         form = RegistrationForm(request.form)
         if request.method == "POST" and form.validate():
             username  = form.username.data
@@ -50,7 +57,25 @@ def register_page():
                 flash('Username taken')
                 return render_template("register.html", form=form)
         return render_template("register.html", form=form)
-        
+
+#using wrappers
+def login_required(f):
+    @wraps(f)
+    def wrap(*args, **kwargs):
+        if 'logged_in' in session:
+            return f(*args, **kwargs)
+        else:
+            flash("You need to login first")
+            return redirect(url_for('home'))
+    return wrap
+
+@app.route("/logout/")
+@login_required
+def logout():
+    session.clear()
+    flash("You have been logged out!")
+    return redirect(url_for('home'))
+
 if __name__ == "__main__":
     app.run(debug=True,port=6969)
     app.secret_key = 'A0Zr98j/3yX R~XHH!jmN]LWX/,?RT'

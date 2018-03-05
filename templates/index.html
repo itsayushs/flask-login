@@ -6,4 +6,13 @@
     <input type="password" class="form-control" placeholder = "Password" name="password" value="{{request.form.password}}">
 		<input class="btn btn-default" type="submit" value="Login">
   </form>
+  {% with messages = get_flashed_messages() %}
+    {% if messages %}
+      <ul class=flashes>
+      {% for message in messages %}
+        <li style="color:red; font-weight:bold;">{{ message }}</li>
+      {% endfor %}
+      </ul>
+    {% endif %}
+  {% endwith %}
 {% endblock %}
