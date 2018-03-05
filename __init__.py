@@ -6,7 +6,7 @@ Created on Sun Mar  4 10:40:09 2018
 """
 from dynamo import getpass, setdets, query
 from flask import Flask, render_template, flash, request, url_for, redirect, session
-from wtforms import Form, BooleanField, TextField, PasswordField, validators
+from wtforms import Form, TextField, PasswordField, validators
 from passlib.hash import sha256_crypt
 from functools import wraps
 
@@ -14,21 +14,25 @@ app=Flask(__name__)
 app.secret_key = 'A0Zr98j/3yX R~XHH!jmN]LWX/,?RT'
 @app.route('/',methods=['GET','POST'])
 def home():
-    if request.method == "POST":		
-        attempted_username = request.form['username']
-        if query(attempted_username) == False:
-            k=getpass(attempted_username)
-            if sha256_crypt.verify(request.form['password'],k):
-               session['logged_in'] = True
-               session['username'] = request.form['username']
-               flash("You are now logged in")
-               return render_template("welcome.html", uname = attempted_username)
+    try:
+        if request.method == "POST":		
+            attempted_username = request.form['username']
+            if query(attempted_username) == False:
+                k=getpass(attempted_username)
+                if sha256_crypt.verify(request.form['password'],k):
+                   session['logged_in'] = True
+                   session['username'] = request.form['username']
+                   flash("You are now logged in")
+                   return render_template("welcome.html", uname = attempted_username)
+                else:
+                    flash("Invalid credentials, try again.")
+                    return render_template("index.html")
             else:
-                flash("Invalid credentials, try again.")
-                return render_template("index.html")
-        else:
-            flash('No such user detected please signup!')
-            return redirect(url_for('register_page'))
+                flash('No such user detected please signup!')
+                return redirect(url_for('register_page'))
+    except Exception as e:
+            flash("Invalid credentials, try again.")
+            return render_template("index.html")
     else:
         return render_template("index.html")
 #createing the form in flask
