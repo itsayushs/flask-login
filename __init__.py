@@ -41,9 +41,14 @@ def register_page():
             username  = form.username.data
             email = form.email.data
             password = sha256_crypt.encrypt((str(form.password.data)))
-            setdets(username,password,email)
-            session['logged_in'] = True
-            session['username'] = username
+            if query(username) == True:
+                setdets(username,password,email)
+                session['logged_in'] = True
+                session['username'] = username
+                return render_template("welcome.html", uname = username)
+            else:
+                flash('Username taken')
+                return render_template("register.html", form=form)
         return render_template("register.html", form=form)
         
 if __name__ == "__main__":
